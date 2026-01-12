@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Start Page</title>
+
+
+	<meta name="title" content="Start Page">
+	<meta name="description" content="Zariep start page">
+
+	<meta property="og:type" content="website">
+	<meta property="og:url" content="https://itszariep.github.io/zariep-startpage">
+	<meta property="og:title" content="Start Page">
+	<meta property="og:description" content="Zariep's personal start page">
+	<meta property="og:image" content="https://raw.githubusercontent.com/itszariep/zariep-startpage/main/preview.jpg">
+
+	<meta property="twitter:card" content="summary_large_image">
+	<meta property="twitter:url" content="https://itszariep.github.io/zariep-startpage">
+	<meta property="twitter:title" content="Start Page">
+	<meta property="twitter:description" content="Zariep's personal start page">
+	<meta property="twitter:image" content="https://raw.githubusercontent.com/itszariep/zariep-startpage/main/preview.jpg">
+	
+	<link rel="stylesheet" href="./style.css">
+	<link rel="icon" href="/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+	<button class="settings-btn" onclick="openSettings()">⛭</button>
+
+	<div class="container" id="container">
+		<div class="logo-container" id="logoContainer" style="display: none;">
+			<img class="logo" id="logo" src="" alt="Logo">
+		</div>
+
+		<div class="search-container" id="searchContainer">
+			<input type="text" class="search-box" id="searchBox" placeholder="Search...">
+		</div>
+
+		<div class="bookmarks-container" id="bookmarksContainer"></div>
+	</div>
+
+	<!-- Settings Modal -->
+	<div class="modal" id="settingsModal">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h2>Settings</h2>
+				<button class="close-btn" onclick="closeSettings()">&times;</button>
+			</div>
+
+			<div class="tabs">
+				<button class="tab active" onclick="switchTab('general')">General</button>
+				<button class="tab" onclick="switchTab('bookmarks')">Bookmarks</button>
+				<button class="tab" onclick="switchTab('layout')">Layout</button>
+				<button class="tab" onclick="switchTab('styling')">Styling</button>
+			</div>
+
+			<div class="tab-content active" id="generalTab">
+				<div class="setting-group">
+					<label>Logo Image</label>
+					<input type="file" id="logoInput" accept="image/*">
+					<button class="btn btn-secondary" style="margin-top: 10px;" onclick="clearLogo()">Clear Logo</button>
+				</div>
+
+				<div class="setting-group">
+					<label>Background Image</label>
+					<input type="file" id="backgroundInput" accept="image/*">
+					<button class="btn btn-secondary" style="margin-top: 10px;" onclick="clearBackground()">Clear Background</button>
+				</div>
+
+				<div class="setting-group">
+					<label>Search Provider</label>
+					<select id="searchProvider">
+						<option value="https://www.google.com/search?q=">Google</option>
+						<option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+						<option value="https://www.bing.com/search?q=">Bing</option>
+						<option value="custom">Custom</option>
+					</select>
+				</div>
+
+				<div class="setting-group" id="customSearchGroup" style="display: none;">
+					<label>Custom Search URL (use {query} as placeholder)</label>
+					<input type="text" id="customSearchUrl" placeholder="https://example.com/search?q={query}">
+				</div>
+			</div>
+
+			<div class="tab-content" id="bookmarksTab">
+				<button class="btn" onclick="addBookmark()">+ Add Bookmark</button>
+				<button class="btn btn-secondary" onclick="addFolder()">+ Add Folder</button>
+
+				<div class="bookmarks-list" id="bookmarksList"></div>
+			</div>
+
+			<div class="tab-content" id="layoutTab">
+				<div class="setting-group">
+					<label>Content Alignment</label>
+					<select id="alignment">
+						<option value="top">Top</option>
+						<option value="center">Center</option>
+						<option value="bottom">Bottom</option>
+					</select>
+				</div>
+
+				<div class="setting-group">
+					<label>Element Order</label>
+					<div class="order-controls" id="orderControls"></div>
+				</div>
+
+				<div class="setting-group">
+					<label>Grid Columns</label>
+					<input type="number" id="gridColumns" min="1" max="12" value="4">
+				</div>
+
+				<div class="setting-group">
+					<label>Bookmark Display</label>
+					<select id="bookmarkDisplay">
+						<option value="both">Icon + Text</option>
+						<option value="icon">Icon Only</option>
+						<option value="text">Text Only</option>
+					</select>
+				</div>
+
+				<div class="setting-group">
+					<label>Icon Size</label>
+					<select id="iconSize">
+						<option value="favicon">Favicon (64px)</option>
+						<option value="cover">Cover (fills bookmark)</option>
+					</select>
+				</div>
+
+				<div class="setting-group">
+					<label>Bookmark Width (px)</label>
+					<input type="number" id="bookmarkWidth" min="50" max="300" value="120">
+				</div>
+
+				<div class="setting-group">
+					<label>Bookmark Height (px)</label>
+					<input type="number" id="bookmarkHeight" min="50" max="300" value="120">
+				</div>
+			</div>
+
+			<div class="tab-content" id="stylingTab">
+				<div class="setting-group">
+					<label>Accent Color</label>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<input type="color" id="accentColor" value="#91a666" class="color-picker">
+						<input type="text" id="accentColorText" placeholder="#91a666" style="flex: 1;">
+					</div>
+				</div>
+
+				<div class="setting-group">
+					<label>Accent Hover Color</label>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<input type="color" id="accentHoverColor" value="#454c3a" class="color-picker">
+						<input type="text" id="accentHoverColorText" placeholder="#454c3a" style="flex: 1;">
+					</div>
+				</div>
+
+				<div class="setting-group">
+					<label>Background Color</label>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<input type="color" id="bgColor" value="#2a2a2a" class="color-picker">
+						<input type="text" id="bgColorText" placeholder="#2a2a2a" style="flex: 1;">
+					</div>
+				</div>
+
+				<div class="setting-group">
+					<label>Text Color</label>
+					<div style="display: flex; gap: 10px; align-items: center;">
+						<input type="color" id="textColor" value="#ffffff" class="color-picker">
+						<input type="text" id="textColorText" placeholder="#ffffff" style="flex: 1;">
+					</div>
+				</div>
+				
+				<div class="setting-group">
+					<label>Auto Swap BG/FG Colors</label>
+					<select id="colorSwapMode">
+						<option value="never">Never</option>
+						<option value="light">When system is Light</option>
+						<option value="dark">When system is Dark</option>
+					</select>
+					<div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+						Automatically swaps background and text colors when system theme changes
+					</div>
+				</div>
+
+				<div class="setting-group">
+					<label>Custom CSS</label>
+					<textarea id="customCss" placeholder="Enter custom CSS here..." class="custom-css-textarea"></textarea>
+					<button class="btn btn-secondary" style="margin-top: 10px;" onclick="clearCustomCss()">Clear Custom CSS</button>
+				</div>
+
+				<div class="setting-group">
+					<button class="btn btn-secondary" onclick="resetColors()">Reset to Default Colors</button>
+				</div>
+			</div>
+
+			<div style="margin-top: 30px;">
+				<button class="btn" onclick="saveSettings()">Save</button>
+				<button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
+				<button class="btn btn-danger" onclick="resetSettings()">Reset All</button>
+			</div>
+		</div>
+	</div>
+
+	<!-- Bookmark Editor Modal -->
+	<div class="modal" id="bookmarkEditorModal">
+		<div class="modal-content" style="max-width: 500px;">
+			<div class="modal-header">
+				<h2 id="editorModalTitle">Add Bookmark</h2>
+				<button class="close-btn" onclick="closeBookmarkEditor()">&times;</button>
+			</div>
+
+			<div class="editor-form">
+				<div class="setting-group">
+					<label>Name *</label>
+					<input type="text" id="editorName" placeholder="My Bookmark">
+				</div>
+
+				<div class="setting-group" id="editorUrlGroup">
+					<label>URL *</label>
+					<input type="text" id="editorUrl" placeholder="https://example.com">
+				</div>
+
+				<div class="setting-group" id="editorIconGroup">
+					<label>Icon</label>
+					
+					<div class="icon-preview-container">
+						<img id="editorIconPreview" style="display: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: var(--card-bg); padding: 8px;">
+					</div>
+
+					<div style="margin-top: 12px;">
+						<label class="file-upload-btn">
+							<input type="file" id="editorIconFile" accept="image/*" style="display: none;">
+							🖿 Choose from Device
+						</label>
+						<button class="btn btn-secondary" onclick="clearEditorIcon()" style="margin-left: 8px;">Clear Icon</button>
+					</div>
+
+					<div style="margin-top: 12px;">
+						<label style="font-size: 13px; color: var(--text-muted);">Or enter URL:</label>
+						<input type="text" id="editorIconUrl" placeholder="https://example.com/icon.png" style="margin-top: 4px;">
+					</div>
+				</div>
+
+				<div style="margin-top: 24px; display: flex; gap: 10px;">
+					<button class="btn" onclick="saveBookmarkFromEditor()">Save</button>
+					<button class="btn btn-secondary" onclick="closeBookmarkEditor()">Cancel</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Move to Folder Modal -->
+	<div class="modal" id="moveFolderModal">
+		<div class="modal-content" style="max-width: 400px;">
+			<div class="modal-header">
+				<h2>Move to Folder</h2>
+				<button class="close-btn" onclick="closeMoveToFolderDialog()">&times;</button>
+			</div>
+
+			<div id="moveFolderList" class="folder-select-list"></div>
+
+			<div style="margin-top: 20px;">
+				<button class="btn btn-secondary" onclick="closeMoveToFolderDialog()">Cancel</button>
+			</div>
+		</div>
+	</div>
+
+	<script src="./main.js"></script>
+</body>
+</html>
