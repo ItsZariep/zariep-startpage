@@ -211,7 +211,7 @@ function renderBookmarks()
 		if (!bookmark.isFolder)
 		{
 			elem.href = bookmark.url;
-			elem.target = '_blank';
+			// elem.target = '_blank';
 		}
 
 		if (settings.bookmarkDisplay === 'both' || settings.bookmarkDisplay === 'icon')
@@ -293,16 +293,16 @@ function renderBookmarksList()
 	const list = document.getElementById('bookmarksList');
 	list.innerHTML = '';
 
-	const bookmarksToShow = editingFolderIndex !== null 
-		? settings.bookmarks[editingFolderIndex].items 
+	const bookmarksToShow = editingFolderIndex !== null
+		? settings.bookmarks[editingFolderIndex].items
 		: settings.bookmarks;
 
 	const header = document.createElement('div');
 	header.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;';
 
 	const title = document.createElement('h3');
-	title.textContent = editingFolderIndex !== null 
-		? `Editing: ${settings.bookmarks[editingFolderIndex].name}` 
+	title.textContent = editingFolderIndex !== null
+		? `Editing: ${settings.bookmarks[editingFolderIndex].name}`
 		: 'Bookmarks';
 	title.style.margin = '0';
 	header.appendChild(title);
@@ -474,8 +474,8 @@ function handleDrop(e)
 
 	if (draggedIsInFolder === dropIsInFolder && draggedIndex !== dropIndex)
 	{
-		const arr = draggedIsInFolder 
-			? settings.bookmarks[editingFolderIndex].items 
+		const arr = draggedIsInFolder
+			? settings.bookmarks[editingFolderIndex].items
 			: settings.bookmarks;
 
 		const item = arr.splice(draggedIndex, 1)[0];
@@ -500,15 +500,15 @@ function openBookmarkEditor(index = null)
 	currentEditingIconDataUrl = null;
 
 	const modal = document.getElementById('bookmarkEditorModal');
-	const bookmarksArray = editingFolderIndex !== null 
-		? settings.bookmarks[editingFolderIndex].items 
+	const bookmarksArray = editingFolderIndex !== null
+		? settings.bookmarks[editingFolderIndex].items
 		: settings.bookmarks;
 
 	const bookmark = index !== null ? bookmarksArray[index] : null;
 	const isFolder = bookmark ? bookmark.isFolder : false;
 
 	// Update modal title
-	document.getElementById('editorModalTitle').textContent = 
+	document.getElementById('editorModalTitle').textContent =
 		index !== null ? (isFolder ? 'Edit Folder' : 'Edit Bookmark') : 'Add Bookmark';
 
 	// Show/hide fields based on type
@@ -555,8 +555,8 @@ function saveBookmarkFromEditor()
 		return;
 	}
 
-	const bookmarksArray = editingFolderIndex !== null 
-		? settings.bookmarks[editingFolderIndex].items 
+	const bookmarksArray = editingFolderIndex !== null
+		? settings.bookmarks[editingFolderIndex].items
 		: settings.bookmarks;
 
 	const isEditing = currentEditingIndex !== null;
@@ -726,7 +726,7 @@ function moveElement(index)
 {
 	if (index < settings.elementOrder.length - 1)
 	{
-		[settings.elementOrder[index], settings.elementOrder[index + 1]] = 
+		[settings.elementOrder[index], settings.elementOrder[index + 1]] =
 		[settings.elementOrder[index + 1], settings.elementOrder[index]];
 		updateOrderControls();
 	}
@@ -809,6 +809,35 @@ document.getElementById('backgroundInput').addEventListener('change', async (e) 
 	}
 });
 
+document.getElementById('faviconInput').addEventListener('change', async (e) => {
+	const file = e.target.files[0];
+	if (file)
+	{
+		// Validate file type
+		if (!file.type.match(/image\/(png|ico|svg+xml|x-icon)/))
+		{
+			alert('Please select a valid image file (PNG, ICO, or SVG)');
+			return;
+		}
+
+		// Validate file size
+		if (file.size > 100 * 1024)
+		{
+			alert('Favicon file size should be less than 100KB');
+			return;
+		}
+
+		const reader = new FileReader();
+		reader.onload = async (e) =>
+		{
+			const dataUrl = e.target.result;
+			applyFavicon(dataUrl);
+			await saveToDb('images', { key: 'favicon', value: dataUrl });
+		};
+		reader.readAsDataURL(file);
+	}
+});
+
 function clearLogo()
 {
 	document.getElementById('logo').src = '';
@@ -858,12 +887,12 @@ function addFolder()
 
 function deleteBookmark(index)
 {
-	const bookmarksArray = editingFolderIndex !== null 
-		? settings.bookmarks[editingFolderIndex].items 
+	const bookmarksArray = editingFolderIndex !== null
+		? settings.bookmarks[editingFolderIndex].items
 		: settings.bookmarks;
 
 	const bookmark = bookmarksArray[index];
-	const message = bookmark.isFolder 
+	const message = bookmark.isFolder
 		? `Delete folder "${bookmark.name}" and all its contents?`
 		: `Delete "${bookmark.name}"?`;
 
@@ -879,8 +908,8 @@ async function saveSettings()
 {
 	const searchProvider = document.getElementById('searchProvider').value;
 
-	settings.searchProvider = searchProvider === 'custom' ? 
-		document.getElementById('customSearchUrl').value : 
+	settings.searchProvider = searchProvider === 'custom' ?
+		document.getElementById('customSearchUrl').value :
 		searchProvider;
 
 	settings.customSearchUrl = document.getElementById('customSearchUrl').value;
@@ -914,6 +943,46 @@ async function resetSettings()
 	}
 }
 
+// Load favicon from IndexedDB on startup
+async function loadFavicon()
+{
+	const faviconData = await getFromDb('images', 'favicon');
+	if (faviconData)
+	{
+		applyFavicon(faviconData.value);
+	}
+}
+
+// Apply favicon to the page
+function applyFavicon(dataUrl)
+{
+	const existingLinks = document.querySelectorAll('link[rel*="icon"]');
+	existingLinks.forEach(link => link.remove());
+
+	const link = document.createElement('link');
+	link.rel = 'icon';
+	link.type = 'image/png';
+	link.href = dataUrl;
+	document.head.appendChild(link);
+}
+
+// Clear favicon and restore default
+function clearFavicon()
+{
+	const existingLinks = document.querySelectorAll('link[rel*="icon"]');
+	existingLinks.forEach(link => link.remove());
+
+	const defaultFavicon = document.createElement('link');
+	defaultFavicon.rel = 'icon';
+	defaultFavicon.href = '/favicon.ico';
+	defaultFavicon.type = 'image/x-icon';
+	document.head.appendChild(defaultFavicon);
+
+	const transaction = db.transaction(['images'], 'readwrite');
+	transaction.objectStore('images').delete('favicon');
+
+	document.getElementById('faviconInput').value = '';
+}
 
 // Apply color settings
 function applyColors()
@@ -921,7 +990,7 @@ function applyColors()
 	const root = document.documentElement;
 
 	const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
-	const shouldSwap = (settings.colorSwapMode === 'light' && !isDarkMode) || 
+	const shouldSwap = (settings.colorSwapMode === 'light' && !isDarkMode) ||
 		(settings.colorSwapMode === 'dark' && isDarkMode);
 
 	let accentColor = settings.accentColor;
@@ -1028,10 +1097,117 @@ window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () 
 	}
 });
 
+
+// Import / Export //
+
+async function getAllImages()
+{
+	const images = {};
+	for (const key of ['logo', 'background', 'favicon'])
+	{
+		const record = await getFromDb('images', key);
+		if (record) images[key] = record.value;
+	}
+	return images;
+}
+
+async function exportSettings()
+{
+	const images = await getAllImages();
+
+	const exportData =
+	{
+		type: 'zariep-startpage-export',
+		version: 1,
+		exportedAt: new Date().toISOString(),
+		settings,
+		images
+	};
+
+	const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+	const url = URL.createObjectURL(blob);
+
+	const a = document.createElement('a');
+	a.href = url;
+	const date = new Date().toISOString().slice(0, 10);
+	a.download = `startpage-settings-${date}.json`;
+	document.body.appendChild(a);
+	a.click();
+	document.body.removeChild(a);
+	URL.revokeObjectURL(url);
+}
+
+async function importSettingsFromFile(file)
+{
+	const text = await file.text();
+	let data;
+
+	try
+	{
+		data = JSON.parse(text);
+	}
+	catch (err)
+	{
+		alert('Invalid file: not valid JSON.');
+		return;
+	}
+
+	// Accept either a full export wrapper, or a raw settings object
+	const importedSettings = data.settings || data;
+	const importedImages = data.images || {};
+
+	if (!importedSettings || typeof importedSettings !== 'object')
+	{
+		alert('Invalid file: missing settings data.');
+		return;
+	}
+
+	if (!confirm('Import these settings? This will overwrite your current settings, bookmarks, and images.'))
+	{
+		return;
+	}
+
+	// Replace settings
+	settings = { ...settings, ...importedSettings };
+
+	// Replace images
+	const transaction = db.transaction(['images'], 'readwrite');
+	const store = transaction.objectStore('images');
+	store.clear();
+
+	for (const key of ['logo', 'background', 'favicon'])
+	{
+		if (importedImages[key])
+		{
+			store.put({ key, value: importedImages[key] });
+		}
+	}
+
+	await saveToDb('settings', { key: 'config', value: settings });
+
+	alert('Settings imported successfully. Reloading...');
+	location.reload();
+}
+
+document.getElementById('importInput').addEventListener('change', (e) =>
+{
+	const file = e.target.files[0];
+	if (file)
+	{
+		importSettingsFromFile(file).catch(err =>
+		{
+			console.error(err);
+			alert('Failed to import settings.');
+		});
+	}
+	e.target.value = '';
+});
+
 // Initialize
 initDB().then(() =>
 {
 	loadSettings();
+	loadFavicon();
 	setupColorPickers();
 	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () =>
 	{

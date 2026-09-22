@@ -20,7 +20,7 @@
 	<meta property="twitter:title" content="Start Page">
 	<meta property="twitter:description" content="Zariep's personal start page">
 	<meta property="twitter:image" content="https://raw.githubusercontent.com/itszariep/zariep-startpage/main/preview.jpg">
-	
+
 	<link rel="stylesheet" href="./style.css">
 	<link rel="icon" href="/favicon.ico" type="image/x-icon">
 </head>
@@ -53,6 +53,7 @@
 				<button class="tab" onclick="switchTab('bookmarks')">Bookmarks</button>
 				<button class="tab" onclick="switchTab('layout')">Layout</button>
 				<button class="tab" onclick="switchTab('styling')">Styling</button>
+				<button class="tab" onclick="switchTab('data')">Data</button>
 			</div>
 
 			<div class="tab-content active" id="generalTab">
@@ -66,6 +67,15 @@
 					<label>Background Image</label>
 					<input type="file" id="backgroundInput" accept="image/*">
 					<button class="btn btn-secondary" style="margin-top: 10px;" onclick="clearBackground()">Clear Background</button>
+				</div>
+
+				<div class="setting-group">
+					<label>Custom Favicon</label>
+					<input type="file" id="faviconInput" accept="image/*">
+					<button class="btn btn-secondary" style="margin-top: 10px;" onclick="clearFavicon()">Clear Favicon</button>
+					<div style="margin-top: 8px; font-size: 12px; color: var(--text-muted);">
+						Recommended: 32x32 or 64x64 pixels (PNG, ICO, or SVG)
+					</div>
 				</div>
 
 				<div class="setting-group">
@@ -171,7 +181,7 @@
 						<input type="text" id="textColorText" placeholder="#ffffff" style="flex: 1;">
 					</div>
 				</div>
-				
+
 				<div class="setting-group">
 					<label>Auto Swap BG/FG Colors</label>
 					<select id="colorSwapMode">
@@ -195,10 +205,35 @@
 				</div>
 			</div>
 
+			<div class="tab-content" id="dataTab">
+				<div class="setting-group">
+					<label>Export Settings</label>
+					<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+						Download all your settings, bookmarks, and images (logo, background, favicon) as a single JSON file.
+					</div>
+					<button class="btn" onclick="exportSettings()">⭳ Export to File</button>
+				</div>
+
+				<div class="setting-group">
+					<label>Import Settings</label>
+					<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+						Import a previously exported JSON file. This will overwrite your current settings.
+					</div>
+					<input type="file" id="importInput" accept="application/json">
+				</div>
+
+				<div class="setting-group">
+					<label>Reset</label>
+					<div style="font-size: 13px; color: var(--text-muted); margin-bottom: 10px;">
+						Clear all settings, bookmarks, and images and restore defaults.
+					</div>
+					<button class="btn btn-danger" onclick="resetSettings()">Reset All</button>
+				</div>
+			</div>
+
 			<div style="margin-top: 30px;">
 				<button class="btn" onclick="saveSettings()">Save</button>
 				<button class="btn btn-secondary" onclick="closeSettings()">Cancel</button>
-				<button class="btn btn-danger" onclick="resetSettings()">Reset All</button>
 			</div>
 		</div>
 	</div>
@@ -224,7 +259,7 @@
 
 				<div class="setting-group" id="editorIconGroup">
 					<label>Icon</label>
-					
+
 					<div class="icon-preview-container">
 						<img id="editorIconPreview" style="display: none; width: 64px; height: 64px; object-fit: contain; border-radius: 8px; background: var(--card-bg); padding: 8px;">
 					</div>
